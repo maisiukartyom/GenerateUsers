@@ -1,0 +1,87 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@model UserStats
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<div style="display: flex; gap: 20px;">
+    <select name="dog-names" id="locale" onchange="uppdate()">
+    <option value="usa">USA</option>
+    <option value="russia">Russia</option>
+    <option value="italy">Italy</option>
+    <option value="germany">Germany</option>
+    </select>
+
+    <div class="slidecontainer">
+      <input type="range" min="0" max="10" step="0.5" value="0" class="slider" id="myRange">
+    </div>
+
+    <div id="demo" style="width: 50px"></div>
+
+    <div class="input-group flex-nowrap" style="width: 150px">
+      <span class="input-group-text" id="addon-wrapping">Error</span>
+      <input id = "demo2" type="number" min="0" max="1000" class="form-control" aria-describedby="addon-wrapping">
+    </div>
+
+    <div class="input-group flex-nowrap" style="width: 250px">
+      <span class="input-group-text" id="addon-wrapping">Seed</span>
+      <input id = "seed" type="number" class="form-control" aria-describedby="addon-wrapping">
+      <button onclick = "randomize()" id = "random" type="submit" class="btn btn-primary">Random</button>
+    </div>
+</div>
+<div id="divPartial">
+    <partial name="_Table"/>
+</div>
+
+
+<script type="text/javascript">
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    var output2 = document.getElementById("demo2");
+    var random = document.getElementById("random");
+    var seed = document.getElementById("seed");
+    var bar = document.getElementById("locale");
+    output.innerHTML = slider.value; // Display the default slider value
+
+    // Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function() {
+        output.innerHTML = this.value
+        output2.value = this.value
+        ajaxgen()
+    }
+
+    function uppdate(){
+        ajaxgen()
+    }
+
+    output2.oninput = function() {
+        output.innerHTML = this.value
+        slider.value = this.value
+        ajaxgen()
+    }
+
+    function randomize(){
+        seed.value = Math.floor(Math.random() * (1000 + 1) );
+        ajaxgen()
+    }
+
+    function ajaxgen(){
+        $.ajax({
+            url: '@Url.Action("Update","Home")',
+            data: { error : output2.value, locale: locale.value},
+            success: function (result) {
+            $("#divPartial").html(result);
+            },
+            error: function (xhr, exception) {
+                return false;
+            }
+        });
+    }
+
+    
+
+</script>
+
+
