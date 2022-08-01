@@ -27,7 +27,7 @@
 
     <div class="input-group flex-nowrap" style="width: 250px">
       <span class="input-group-text" id="addon-wrapping">Seed</span>
-      <input id = "seed" type="number" class="form-control" aria-describedby="addon-wrapping">
+      <input value = "0" id = "seed" type="number" class="form-control" aria-describedby="addon-wrapping">
       <button onclick = "randomize()" id = "random" type="submit" class="btn btn-primary">Random</button>
     </div>
 </div>
@@ -49,28 +49,32 @@
     slider.oninput = function() {
         output.innerHTML = this.value
         output2.value = this.value
-        ajaxgen()
+        ajaxgen(seed.value)
+    }
+
+    seed.oninput = function() {
+        ajaxgen(seed.value)
     }
 
     function uppdate(){
-        ajaxgen()
+        ajaxgen(seed.value)
     }
 
     output2.oninput = function() {
         output.innerHTML = this.value
         slider.value = this.value
-        ajaxgen()
+        ajaxgen(seed.value)
     }
 
     function randomize(){
         seed.value = Math.floor(Math.random() * (1000 + 1) );
-        ajaxgen()
+        ajaxgen(seed.value)
     }
 
-    function ajaxgen(){
+    function ajaxgen(seed){
         $.ajax({
             url: '@Url.Action("Update","Home")',
-            data: { error : output2.value, locale: locale.value},
+            data: { error : output2.value, locale: locale.value, seed: seed},
             success: function (result) {
             $("#divPartial").html(result);
             },
@@ -80,6 +84,10 @@
         });
     }
 
+    document.onload = function(){
+        console.log("hello")
+        ajaxgen(seed.value)
+    }
     
 
 </script>

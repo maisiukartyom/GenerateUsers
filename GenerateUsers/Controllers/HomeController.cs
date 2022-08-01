@@ -68,7 +68,7 @@ namespace GenerateUsers.Controllers
             return result;
         }
 
-        public PartialViewResult Update(float error, string locale)
+        public PartialViewResult Update(float error, string locale, int seed)
         {
             string [] German = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".Split(',');
             string[] Russian = "А,Б,В,Г,Д,Е,Ё,Ж,З,И,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ц,Ч,Ш,Щ,Ь,Ъ,Э,Ю,Я,".Split(',');
@@ -97,14 +97,16 @@ namespace GenerateUsers.Controllers
             }
             var random = new Random();
             List<UserStats> userStats = new List<UserStats>();
+            var faker = new Faker<UserStats>(loc).UseSeed(seed);
             for (int i = 1; i <= 20; i++)
             {
                 int errorC = Convert.ToInt32(Math.Floor(error));
-                var faker = new Faker<UserStats>(loc)
+
+                faker
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
                     .RuleFor(x => x.Address, x => x.Person.Address.Street)
                     .RuleFor(x => x.Phone, x => x.Person.Phone)
-                    .RuleFor(x => x.Id, random.Next(1000));
+                    .RuleFor(x => x.Id, /*random.Next(1000)*/ x => x.Random.Number(1000));
                 var obj = faker.Generate();
 
                 int tmperror = random.Next(errorC);
