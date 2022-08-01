@@ -5,8 +5,9 @@
 @model UserStats
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
 
-<div style="display: flex; gap: 20px;">
+<div style="display: flex; gap: 20px; margin-top: 20px">
     <select name="dog-names" id="locale" onchange="uppdate()">
     <option value="usa">USA</option>
     <option value="russia">Russia</option>
@@ -14,15 +15,21 @@
     <option value="germany">Germany</option>
     </select>
 
-    <div class="slidecontainer">
+    <div class="input-group flex-nowrap" style="width: auto; gap: 5px; align-items: baseline">
+      <span class="input-group-text" id="addon-wrapping">Error</span>
+      <div class="slidecontainer">
       <input type="range" min="0" max="10" step="0.5" value="0" class="slider" id="myRange">
+      
     </div>
-
     <div id="demo" style="width: 50px"></div>
+ </div>
+    
+
+    
 
     <div class="input-group flex-nowrap" style="width: 150px">
       <span class="input-group-text" id="addon-wrapping">Error</span>
-      <input id = "demo2" type="number" min="0" max="1000" class="form-control" aria-describedby="addon-wrapping">
+      <input value = "0" id = "demo2" type="number" min="0" max="1000" class="form-control" aria-describedby="addon-wrapping">
     </div>
 
     <div class="input-group flex-nowrap" style="width: 250px">
@@ -32,9 +39,23 @@
     </div>
 </div>
 <div id="divPartial">
+    <div id = "scroller" style="overflow-y:auto; height: 700px; margin-top:20px">
+  <table class="table table-bordered">
+    <thead class="thead-light">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Random ID</th>
+      <th scope="col">Full name</th>
+      <th scope="col">Address</th>
+      <th scope="col">Phone</th>
+    </tr>
+  </thead>
+  <tbody>
     <partial name="_Table"/>
+  </tbody>      
+  </table>
 </div>
-
+</div>
 
 <script type="text/javascript">
     var slider = document.getElementById("myRange");
@@ -43,40 +64,55 @@
     var random = document.getElementById("random");
     var seed = document.getElementById("seed");
     var bar = document.getElementById("locale");
+    var currpage = 1;
+
     output.innerHTML = slider.value; // Display the default slider value
 
     // Update the current slider value (each time you drag the slider handle)
     slider.oninput = function() {
         output.innerHTML = this.value
         output2.value = this.value
-        ajaxgen(seed.value)
+        ajaxgen2(seed.value)
     }
 
     seed.oninput = function() {
-        ajaxgen(seed.value)
+        ajaxgen2(seed.value)
     }
 
     function uppdate(){
-        ajaxgen(seed.value)
+        ajaxgen2(seed.value)
     }
 
     output2.oninput = function() {
         output.innerHTML = this.value
         slider.value = this.value
-        ajaxgen(seed.value)
+        ajaxgen2(seed.value)
     }
 
     function randomize(){
         seed.value = Math.floor(Math.random() * (1000 + 1) );
-        ajaxgen(seed.value)
+        ajaxgen2(seed.value)
     }
 
     function ajaxgen(seed){
         $.ajax({
             url: '@Url.Action("Update","Home")',
+            data: { error : output2.value, locale: locale.value, seed: seed, page: currpage},
+            success: function (result) {
+                $('tbody').append(result);
+            },
+            error: function (xhr, exception) {
+                return false;
+            }
+        });
+    }
+    function ajaxgen2(seed){
+        $.ajax({
+            url: '@Url.Action("Update","Home")',
             data: { error : output2.value, locale: locale.value, seed: seed},
             success: function (result) {
-            $("#divPartial").html(result);
+                $('tbody').html(result)
+                $("#scroller").scrollTop(0);
             },
             error: function (xhr, exception) {
                 return false;
@@ -84,12 +120,21 @@
         });
     }
 
-    document.onload = function(){
-        console.log("hello")
-        ajaxgen(seed.value)
+    $('#scroller').scroll(function () {
+        var elem = $("#scroller");
+        if (elem[0].scrollHeight - elem.scrollTop() == elem.outerHeight()){
+            setTimeout(() => { 
+                currpage ++;
+                go = false;
+                ajaxgen(seed.value, currpage) }, 500);
+        }
+             
+        
+    });
+    window.onload = function(){
+        ajaxgen2(seed.value)
     }
     
-
 </script>
 
 

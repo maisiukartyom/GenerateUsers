@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using GenerateUsers.Data;
 using GenerateUsers.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ namespace GenerateUsers.Controllers
 
         public IActionResult Index()
         {
+            Amount.numb = 1;
             return View();
         }
         public string MakeError(int error, string[] alphabet, string result)
@@ -68,7 +70,7 @@ namespace GenerateUsers.Controllers
             return result;
         }
 
-        public PartialViewResult Update(float error, string locale, int seed)
+        public PartialViewResult Update(float error, string locale, int seed, int page = 1)
         {
             string [] German = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".Split(',');
             string[] Russian = "А,Б,В,Г,Д,Е,Ё,Ж,З,И,К,Л,М,Н,О,П,Р,С,Т,У,Ф,Х,Ц,Ч,Ш,Щ,Ь,Ъ,Э,Ю,Я,".Split(',');
@@ -97,16 +99,22 @@ namespace GenerateUsers.Controllers
             }
             var random = new Random();
             List<UserStats> userStats = new List<UserStats>();
+            seed += page;
+            int numb;
+            if (page == 1)
+                numb = 20;
+            else
+                numb = 15;
             var faker = new Faker<UserStats>(loc).UseSeed(seed);
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= numb; i++)
             {
                 int errorC = Convert.ToInt32(Math.Floor(error));
 
                 faker
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
-                    .RuleFor(x => x.Address, x => x.Person.Address.Street)
+                    .RuleFor(x => x.Address, x => x.Person.Address.Street + ", " + x.Person.Address.City + ", " + x.Person.Address.ZipCode)
                     .RuleFor(x => x.Phone, x => x.Person.Phone)
-                    .RuleFor(x => x.Id, /*random.Next(1000)*/ x => x.Random.Number(1000));
+                    .RuleFor(x => x.Id, x => x.Random.Number(1000));
                 var obj = faker.Generate();
 
                 int tmperror = random.Next(errorC);
@@ -125,7 +133,8 @@ namespace GenerateUsers.Controllers
 
                 userStats.Add(obj);
             }
-            
+            if (page == 1)
+                Amount.numb = 1;
             return PartialView("_Table", userStats);
         }
         public IActionResult Privacy()

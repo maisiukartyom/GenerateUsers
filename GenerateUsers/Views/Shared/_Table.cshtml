@@ -1,21 +1,10 @@
-﻿@model List<UserStats>
+﻿@using GenerateUsers.Data
+@model List<UserStats>
 
-<div style="overflow-y:auto; height: 500px; margin-top:20px">
-  <table class="table table-bordered">
-    <thead class="thead-light">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Random ID</th>
-      <th scope="col">Full name</th>
-      <th scope="col">Address</th>
-      <th scope="col">Phone</th>
-    </tr>
-  </thead>
-  <tbody>
       @{
         if (Model != null)
             {
-                int i = 1;
+                int i = Amount.numb;
                 foreach (var obj in Model){
                   <tr>
                     <th scope="row">@i</th>
@@ -25,10 +14,7 @@
                     <td>@obj.Phone</td>
                   </tr>
                   i++;
+                  Amount.numb ++;
                 } 
             }
        }
-    
-  </tbody>      
-  </table>
-</div>
