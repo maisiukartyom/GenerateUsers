@@ -108,11 +108,15 @@ namespace GenerateUsers.Controllers
             var faker = new Faker<UserStats>(loc).UseSeed(seed);
             for (int i = 1; i <= numb; i++)
             {
-                int errorC = Convert.ToInt32(Math.Floor(error));
+                int errorC;
+                if (random.Next(2) == 1)
+                    errorC = Convert.ToInt32(Math.Floor(error));
+                else
+                    errorC = Convert.ToInt32(Math.Ceiling(error));
 
                 faker
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
-                    .RuleFor(x => x.Address, x => x.Person.Address.Street + ", " + x.Person.Address.City + ", " + x.Person.Address.ZipCode)
+                    .RuleFor(x => x.Address, x => x.Person.Address.Street + " | " + x.Person.Address.City + " | " + x.Person.Address.ZipCode)
                     .RuleFor(x => x.Phone, x => x.Person.Phone)
                     .RuleFor(x => x.Id, x => x.Random.Number(1000));
                 var obj = faker.Generate();

@@ -6,6 +6,7 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/site.css" />
 
 <div style="display: flex; gap: 20px; margin-top: 20px">
     <select name="dog-names" id="locale" onchange="uppdate()">
@@ -56,6 +57,13 @@
   </table>
 </div>
 </div>
+
+<div class="input-group flex-nowrap" style="width: 500px; margin-top: 20px; margin-left: 350px">
+    <span class="input-group-text" id="addon-wrapping">Filepath</span>
+    <input id = "path" type="text" class="form-control" aria-describedby="addon-wrapping" style="width: 100px">
+    <button onclick = "exxport()" type="submit" class="btn btn-primary">Export to CSV</button>
+</div>
+
 
 <script type="text/javascript">
     var slider = document.getElementById("myRange");
@@ -135,6 +143,42 @@
         ajaxgen2(seed.value)
     }
     
+    function exxport(){
+        var path = document.getElementById("path");
+        htmlToCSV(path.value)
+    }
+    function htmlToCSV(filename) {
+	    var data = [];
+	    var rows = document.querySelectorAll("table tr");
+			
+	    for (var i = 0; i < rows.length; i++) {
+		    var row = [], cols = rows[i].querySelectorAll("td, th");
+				
+		    for (var j = 0; j < cols.length; j++) {
+		            row.push(cols[j].innerText);
+            }
+		        
+		    data.push(row.join(",")); 		
+	    }
+
+	    downloadCSVFile(data.join("\n"), filename);
+    }
+
+    function downloadCSVFile(csv, filename) {
+	    var csv_file, download_link;
+
+	    csv_file = new Blob([csv], {type: "text/csv"});
+
+        download_link = document.createElement("a");
+
+	    download_link.download = filename;
+
+	    download_link.href = window.URL.createObjectURL(csv_file);
+
+	    download_link.style.display = "none";
+
+	    download_link.click();
+    }
 </script>
 
 
